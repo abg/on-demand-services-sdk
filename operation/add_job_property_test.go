@@ -18,9 +18,11 @@ var _ = Describe("AddJobProperty", func() {
 				}},
 			}
 
-			operation.New(manifest).
+			err := operation.New(manifest).
 				FindJob("gemfire-locator").
-				AddJobProperty("gemfire", true)
+				AddJobProperty("/gemfire?", true).
+				Error()
+			Expect(err).NotTo(HaveOccurred())
 
 			Expect(manifest.InstanceGroups[0].Jobs[0].Properties).To(HaveKeyWithValue("gemfire", true))
 		})
@@ -38,7 +40,7 @@ var _ = Describe("AddJobProperty", func() {
 
 			operation.New(manifest).
 				FindJob("gemfire-locator").
-				AddJobProperty("gemfire/tls/enabled", true)
+				AddJobProperty("/gemfire?/tls/enabled", true)
 
 			Expect(manifest.InstanceGroups[0].Jobs[0].Properties).To(Equal(map[string]interface{}{
 				"gemfire": map[interface{}]interface{}{
@@ -73,7 +75,7 @@ var _ = Describe("AddJobProperty", func() {
 
 			err := operation.New(manifest).
 				FindJob("route_registrar").
-				AddJobProperty("route_registrar/routes/name=cloudcache/some_key", "some_value").
+				AddJobProperty("/route_registrar?/routes/name=cloudcache/some_key", "some_value").
 				Error()
 			Expect(err).NotTo(HaveOccurred())
 
@@ -115,9 +117,9 @@ var _ = Describe("AddJobProperty", func() {
 
 			err := operation.New(manifest).
 				FindJob("route_registrar").
-				AddJobProperty("route_registrar/routes/name=some-incorrect-property/some_key", "some_value").
+				AddJobProperty("/route_registrar/routes/name=some-incorrect-property/some_key", "some_value").
 				Error()
-			Expect(err).To(MatchError(ContainSubstring("failed match 'name=some-incorrect-property' of 'route_registrar/routes/name=some-incorrect-property/some_key' in:")))
+			Expect(err).To(MatchError(ContainSubstring("Expected to find exactly one matching array item for path '/route_registrar/routes/name=some-incorrect-property' but found 0")))
 		})
 	})
 
@@ -138,10 +140,10 @@ var _ = Describe("AddJobProperty", func() {
 
 			err := operation.New(manifest).
 				FindJob("gemfire-locator").
-				AddJobProperty("gemfire/tls/enabled", true).
+				AddJobProperty("/gemfire/tls/enabled", true).
 				Error()
 
-			Expect(err).To(MatchError("failed to apply property at 'gemfire/tls/enabled' because '12'(int) exists at .tls"))
+			Expect(err).To(MatchError("Expected to find a map at path '/gemfire/tls/enabled' but found 'int'"))
 		})
 	})
 
@@ -157,7 +159,7 @@ var _ = Describe("AddJobProperty", func() {
 
 			err := operation.New(manifest).
 				FindJob("some-incorrect-job-name").
-				AddJobProperty("gemfire", true).
+				AddJobProperty("/gemfire?", true).
 				Error()
 
 			Expect(err).To(MatchError("failed to find job 'some-incorrect-job-name' within manifest"))

@@ -3,6 +3,7 @@ package operation_test
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+
 	"github.com/pivotal-cf/on-demand-services-sdk/bosh"
 	"github.com/pivotal-cf/on-demand-services-sdk/operation"
 )
@@ -27,7 +28,7 @@ var _ = Describe("GetJobPropertyString", func() {
 
 			result, err := operation.New(manifest).
 				FindJob("gemfire-locator").
-				GetJobPropertyString("gemfire/tls/enabled")
+				GetJobPropertyString("/gemfire/tls/enabled")
 			Expect(err).NotTo(HaveOccurred())
 
 			Expect(result).To(Equal("true"))
@@ -44,8 +45,8 @@ var _ = Describe("GetJobPropertyString", func() {
 							"route_registrar": map[interface{}]interface{}{
 								"routes": []interface{}{
 									map[interface{}]interface{}{
-										"name": "cloudcache",
-										"port": 8080,
+										"name":                  "cloudcache",
+										"port":                  8080,
 										"registration_interval": "20s",
 									},
 								},
@@ -57,7 +58,7 @@ var _ = Describe("GetJobPropertyString", func() {
 
 			result, err := operation.New(manifest).
 				FindJob("route_registrar").
-				GetJobPropertyString("route_registrar/routes/name=cloudcache/registration_interval")
+				GetJobPropertyString("/route_registrar/routes/name=cloudcache/registration_interval")
 			Expect(err).NotTo(HaveOccurred())
 
 			Expect(result).To(Equal("20s"))
@@ -74,10 +75,10 @@ var _ = Describe("GetJobPropertyString", func() {
 							"route_registrar": map[interface{}]interface{}{
 								"routes": []interface{}{
 									map[interface{}]interface{}{
-										"name": "cloudcache",
-										"port": 8080,
+										"name":                  "cloudcache",
+										"port":                  8080,
 										"registration_interval": "20s",
-										"uris": []interface{}{"some-uri-1", "some-uri-2"},
+										"uris":                  []interface{}{"some-uri-1", "some-uri-2"},
 									},
 								},
 							},
@@ -88,7 +89,7 @@ var _ = Describe("GetJobPropertyString", func() {
 
 			result, err := operation.New(manifest).
 				FindJob("route_registrar").
-				GetJobPropertyString("route_registrar/routes/name=cloudcache/uris/1")
+				GetJobPropertyString("/route_registrar/routes/name=cloudcache/uris/1")
 			Expect(err).NotTo(HaveOccurred())
 
 			Expect(result).To(Equal("some-uri-2"))
@@ -105,10 +106,10 @@ var _ = Describe("GetJobPropertyString", func() {
 							"route_registrar": map[interface{}]interface{}{
 								"routes": []interface{}{
 									map[interface{}]interface{}{
-										"name": "cloudcache",
-										"port": 8080,
+										"name":                  "cloudcache",
+										"port":                  8080,
 										"registration_interval": "20s",
-										"uris": []interface{}{123, 456},
+										"uris":                  []interface{}{123, 456},
 									},
 								},
 							},
@@ -119,9 +120,9 @@ var _ = Describe("GetJobPropertyString", func() {
 
 			_, err := operation.New(manifest).
 				FindJob("route_registrar").
-				GetJobPropertyString("route_registrar/routes/name=cloudcache/uris/1")
+				GetJobPropertyString("/route_registrar/routes/name=cloudcache/uris/1")
 
-			Expect(err).To(MatchError("failed to find string value at 'route_registrar/routes/name=cloudcache/uris/1', instead '456'(int) was found"))
+			Expect(err).To(MatchError("failed to find string value at '/route_registrar/routes/name=cloudcache/uris/1', instead '456'(int) was found"))
 		})
 	})
 
@@ -135,10 +136,10 @@ var _ = Describe("GetJobPropertyString", func() {
 							"route_registrar": map[interface{}]interface{}{
 								"routes": []interface{}{
 									map[interface{}]interface{}{
-										"name": "cloudcache",
-										"port": 8080,
+										"name":                  "cloudcache",
+										"port":                  8080,
 										"registration_interval": "20s",
-										"uris": []interface{}{"some-uri-1", "some-uri-2"},
+										"uris":                  []interface{}{"some-uri-1", "some-uri-2"},
 									},
 								},
 							},
@@ -149,9 +150,9 @@ var _ = Describe("GetJobPropertyString", func() {
 
 			_, err := operation.New(manifest).
 				FindJob("route_registrar").
-				GetJobPropertyString("route_registrar/routes/name=cloudcache/uris/100")
+				GetJobPropertyString("/route_registrar/routes/name=cloudcache/uris/100")
 
-			Expect(err).To(MatchError(MatchRegexp("failed to find value at 'route_registrar/routes/name=cloudcache/uris/100', because .* only has 2 values")))
+			Expect(err).To(MatchError("Expected to find array index '[100]' but '/route_registrar/routes/name=cloudcache/uris/100' only has an array of length '2'"))
 		})
 	})
 
@@ -165,10 +166,10 @@ var _ = Describe("GetJobPropertyString", func() {
 							"route_registrar": map[interface{}]interface{}{
 								"routes": []interface{}{
 									map[interface{}]interface{}{
-										"name": "cloudcache",
-										"port": 8080,
+										"name":                  "cloudcache",
+										"port":                  8080,
 										"registration_interval": "20s",
-										"uris": []interface{}{"some-uri-1", "some-uri-2"},
+										"uris":                  []interface{}{"some-uri-1", "some-uri-2"},
 									},
 								},
 							},
@@ -179,9 +180,9 @@ var _ = Describe("GetJobPropertyString", func() {
 
 			_, err := operation.New(manifest).
 				FindJob("route_registrar").
-				GetJobPropertyString("route_registrar/routes/name=cloudcache/uris/some-non-digit-key")
+				GetJobPropertyString("/route_registrar/routes/name=cloudcache/uris/some-non-digit-key")
 
-			Expect(err).To(MatchError(MatchRegexp("failed to find value at 'route_registrar/routes/name=cloudcache/uris/some-non-digit-key', because .* was found but a non-digit was specified at .some-non-digit-key")))
+			Expect(err).To(MatchError(MatchRegexp("Expected to find a map at path '/route_registrar/routes/name=cloudcache/uris/some-non-digit-key' but found 'array'")))
 		})
 	})
 
@@ -195,8 +196,8 @@ var _ = Describe("GetJobPropertyString", func() {
 							"route_registrar": map[interface{}]interface{}{
 								"routes": []interface{}{
 									map[interface{}]interface{}{
-										"name": "cloudcache",
-										"port": 8080,
+										"name":                  "cloudcache",
+										"port":                  8080,
 										"registration_interval": "20s",
 									},
 								},
@@ -208,9 +209,9 @@ var _ = Describe("GetJobPropertyString", func() {
 
 			_, err := operation.New(manifest).
 				FindJob("route_registrar").
-				GetJobPropertyString("route_registrar/routes/name=some-incorrect-property/some_key")
+				GetJobPropertyString("/route_registrar/routes/name=some-incorrect-property/some_key")
 
-			Expect(err).To(MatchError(ContainSubstring("failed match 'name=some-incorrect-property' of 'route_registrar/routes/name=some-incorrect-property/some_key' in:")))
+			Expect(err).To(MatchError(`Expected to find exactly one matching array item for path '/route_registrar/routes/name=some-incorrect-property' but found 0`))
 		})
 	})
 
@@ -233,9 +234,9 @@ var _ = Describe("GetJobPropertyString", func() {
 
 			_, err := operation.New(manifest).
 				FindJob("gemfire-locator").
-				GetJobPropertyString("gemfire/tls/enabled")
+				GetJobPropertyString("/gemfire/tls/enabled")
 
-			Expect(err).To(MatchError("failed to find string value at 'gemfire/tls/enabled', instead 'true'(bool) was found"))
+			Expect(err).To(MatchError("failed to find string value at '/gemfire/tls/enabled', instead 'true'(bool) was found"))
 		})
 	})
 
@@ -258,12 +259,11 @@ var _ = Describe("GetJobPropertyString", func() {
 
 			_, err := operation.New(manifest).
 				FindJob("some-incorrect-job").
-				GetJobPropertyString("gemfire/tls/enabled")
+				GetJobPropertyString("/gemfire/tls/enabled")
 
 			Expect(err).To(MatchError("failed to find job 'some-incorrect-job' within manifest"))
 		})
 	})
-
 
 	Context("when multiple jobs are found for the given operation", func() {
 		It("returns a helpful error message", func() {
@@ -300,7 +300,7 @@ var _ = Describe("GetJobPropertyString", func() {
 
 			_, err := operation.New(manifest).
 				FindJob("gemfire-locator").
-				GetJobPropertyString("gemfire/tls/enabled")
+				GetJobPropertyString("/gemfire/tls/enabled")
 
 			Expect(err).To(MatchError("failed to execute 'GetJobPropertyString': not implemented for cases where multiple jobs are retrieved"))
 		})

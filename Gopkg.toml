@@ -49,3 +49,7 @@
 [[constraint]]
   name = "github.com/pivotal-cf/brokerapi"
   version = "^6.0.0"
+
+[[constraint]]
+  name = "github.com/abg/go-patch"
+  branch = "patch-uses-go-reflection"

@@ -27,7 +27,7 @@ var _ = Describe("GetJobPropertyInt", func() {
 
 			result, err := operation.New(manifest).
 				FindJob("gemfire-locator").
-				GetJobPropertyInt("gemfire/tls/enabled")
+				GetJobPropertyInt("/gemfire/tls/enabled")
 			Expect(err).NotTo(HaveOccurred())
 
 			Expect(result).To(Equal(123))
@@ -57,7 +57,7 @@ var _ = Describe("GetJobPropertyInt", func() {
 
 			result, err := operation.New(manifest).
 				FindJob("route_registrar").
-				GetJobPropertyInt("route_registrar/routes/name=cloudcache/registration_interval")
+				GetJobPropertyInt("/route_registrar/routes/name=cloudcache/registration_interval")
 			Expect(err).NotTo(HaveOccurred())
 
 			Expect(result).To(Equal(20))
@@ -87,7 +87,7 @@ var _ = Describe("GetJobPropertyInt", func() {
 
 			result, err := operation.New(manifest).
 				FindJob("route_registrar").
-				GetJobPropertyInt("route_registrar/routes/name=cloudcache/registration_intervals/1")
+				GetJobPropertyInt("/route_registrar/routes/name=cloudcache/registration_intervals/1")
 			Expect(err).NotTo(HaveOccurred())
 
 			Expect(result).To(Equal(20))
@@ -117,9 +117,9 @@ var _ = Describe("GetJobPropertyInt", func() {
 
 			_, err := operation.New(manifest).
 				FindJob("route_registrar").
-				GetJobPropertyInt("route_registrar/routes/name=cloudcache/registration_intervals/1")
+				GetJobPropertyInt("/route_registrar/routes/name=cloudcache/registration_intervals/1")
 
-			Expect(err).To(MatchError("failed to find int value at 'route_registrar/routes/name=cloudcache/registration_intervals/1', instead 'some-value-2'(string) was found"))
+			Expect(err).To(MatchError("failed to find int value at '/route_registrar/routes/name=cloudcache/registration_intervals/1', instead 'some-value-2'(string) was found"))
 		})
 	})
 
@@ -146,9 +146,9 @@ var _ = Describe("GetJobPropertyInt", func() {
 
 			_, err := operation.New(manifest).
 				FindJob("route_registrar").
-				GetJobPropertyInt("route_registrar/routes/name=cloudcache/registration_intervals/100")
+				GetJobPropertyInt("/route_registrar/routes/name=cloudcache/registration_intervals/100")
 
-			Expect(err).To(MatchError(MatchRegexp("failed to find value at 'route_registrar/routes/name=cloudcache/registration_intervals/100', because .* only has 2 values")))
+			Expect(err).To(MatchError("Expected to find array index '[100]' but '/route_registrar/routes/name=cloudcache/registration_intervals/100' only has an array of length '2'"))
 		})
 	})
 
@@ -175,9 +175,9 @@ var _ = Describe("GetJobPropertyInt", func() {
 
 			_, err := operation.New(manifest).
 				FindJob("route_registrar").
-				GetJobPropertyInt("route_registrar/routes/name=cloudcache/registration_intervals/some-non-digit-key")
+				GetJobPropertyInt("/route_registrar/routes/name=cloudcache/registration_intervals/some-non-digit-key")
 
-			Expect(err).To(MatchError(MatchRegexp("failed to find value at 'route_registrar/routes/name=cloudcache/registration_intervals/some-non-digit-key', because .* was found but a non-digit was specified at .some-non-digit-key")))
+			Expect(err).To(MatchError(MatchRegexp("Expected to find a map at path '/route_registrar/routes/name=cloudcache/registration_intervals/some-non-digit-key' but found 'array'")))
 		})
 	})
 
@@ -204,9 +204,9 @@ var _ = Describe("GetJobPropertyInt", func() {
 
 			_, err := operation.New(manifest).
 				FindJob("route_registrar").
-				GetJobPropertyInt("route_registrar/routes/name=some-incorrect-property/some_key")
+				GetJobPropertyInt("/route_registrar/routes/name=some-incorrect-property/some_key")
 
-			Expect(err).To(MatchError(ContainSubstring("failed match 'name=some-incorrect-property' of 'route_registrar/routes/name=some-incorrect-property/some_key' in:")))
+			Expect(err).To(MatchError(ContainSubstring("Expected to find exactly one matching array item for path '/route_registrar/routes/name=some-incorrect-property' but found 0")))
 		})
 	})
 
@@ -229,9 +229,9 @@ var _ = Describe("GetJobPropertyInt", func() {
 
 			_, err := operation.New(manifest).
 				FindJob("gemfire-locator").
-				GetJobPropertyInt("gemfire/tls/enabled")
+				GetJobPropertyInt("/gemfire/tls/enabled")
 
-			Expect(err).To(MatchError("failed to find int value at 'gemfire/tls/enabled', instead 'true'(bool) was found"))
+			Expect(err).To(MatchError("failed to find int value at '/gemfire/tls/enabled', instead 'true'(bool) was found"))
 		})
 	})
 

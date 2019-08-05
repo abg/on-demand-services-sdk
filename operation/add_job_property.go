@@ -1,7 +1,7 @@
 package operation
 
 import (
-	"strings"
+	"github.com/abg/go-patch/patch"
 )
 
 // The method takes a yml path in the form of a unix path and
@@ -22,21 +22,16 @@ func (o *Operation) AddJobProperty(path string, value interface{}) *Operation {
 		return o
 	}
 
-	entries := strings.Split(path, "/")
-
-	o.error = o.FetchJobProperty(func(props interface{}) error {
-		switch ps := props.(type) {
-		case map[string]interface{}:
-			ps[entries[len(entries)-1]] = value
-		case map[interface{}]interface{}:
-			ps[entries[len(entries)-1]] = value
-			// case []interface{}: is also possible
-			// but we haven't had reason to build this
-			// functionality (nor an error case) out yet.
+	for _, job := range o.jobs {
+		if job.Properties == nil {
+			job.Properties = make(map[string]interface{})
 		}
 
-		return nil
-	}, entries, path, true)
+		_, o.error = patch.ReplaceOp{
+			Path:  patch.MustNewPointerFromString(path),
+			Value: value,
+		}.Apply(job.Properties)
+	}
 
 	return o
 }

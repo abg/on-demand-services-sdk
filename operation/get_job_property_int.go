@@ -3,7 +3,8 @@ package operation
 import (
 	"errors"
 	"fmt"
-	"strings"
+
+	"github.com/abg/go-patch/patch"
 )
 
 // The method takes a yml path in the form of a unix path and
@@ -28,62 +29,22 @@ func (o *Operation) GetJobPropertyInt(path string) (int, error) {
 		return 0, errors.New("failed to execute 'GetJobPropertyInt': not implemented for cases where multiple jobs are retrieved")
 	}
 
-	var (
-		result  int
-		entries = strings.Split(path, "/")
-	)
+	for _, job := range o.jobs {
+		result, err := patch.FindOp{
+			Path: patch.MustNewPointerFromString(path),
+		}.Apply(job.Properties)
 
-	err := o.FetchJobProperty(func(props interface{}) error {
-		var err error
-		result, err = o.getJobPropertyInt(props, entries, path)
-		if err != nil {
-			return err
-		}
-
-		return nil
-	}, entries, path)
-
-	if err != nil {
-		return 0, err
-	}
-
-	return result, nil
-}
-
-func (o *Operation) getJobPropertyInt(props interface{}, entries []string, path string) (int, error) {
-	switch ps := props.(type) {
-	case map[string]interface{}:
-		value := ps[entries[len(entries)-1]]
-		v, ok := value.(int)
-		if !ok {
-			return 0, fmt.Errorf("failed to find int value at '%s', instead '%v'(%T) was found", path, value, value)
-		}
-
-		return v, nil
-	case map[interface{}]interface{}:
-		value := ps[entries[len(entries)-1]]
-		v, ok := value.(int)
-		if !ok {
-			return 0, fmt.Errorf("failed to find int value at '%s', instead '%v'(%T) was found", path, value, value)
-		}
-
-		return v, nil
-	case []interface{}:
-		value, err := handleIndexingArrayInterface(entries, path, ps)
 		if err != nil {
 			return 0, err
 		}
 
-		v, ok := value.(int)
+		intResult, ok := result.(int)
 		if !ok {
-			return 0, fmt.Errorf("failed to find int value at '%s', instead '%v'(%T) was found", path, value, value)
+			return 0, fmt.Errorf("failed to find int value at '%s', instead '%v'(%T) was found", path, result, result)
 		}
 
-		return v, nil
-	default:
-		// Due to the how fetchJobProperty() works, this code should never be reached
-		// presumably...
-		return 0, fmt.Errorf("failed to find a supported structure at '%s', instead '%v'(%T) was found", path, props, props)
+		return intResult, nil
 	}
 
+	return 0, fmt.Errorf("job property '%s' not found", path)
 }

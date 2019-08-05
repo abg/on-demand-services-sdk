@@ -10,6 +10,14 @@
   revision = "a77e1033ba8d8e36597be5c0d384ee6054105bc2"
 
 [[projects]]
+  branch = "patch-uses-go-reflection"
+  digest = "1:ec9721f7ba07ae14c5114237d8834a284dc3c649663b9bd1e2994cc32c9cd0d6"
+  name = "github.com/abg/go-patch"
+  packages = ["patch"]
+  pruneopts = "NUT"
+  revision = "fd1bfad4c5894cb735e03e91011d46d3b3d4384d"
+
+[[projects]]
   digest = "1:dbd86d229eacaa86a98b10f8fb3e3fc69a1913e0f4e010e7cc1f92bf12edca92"
   name = "github.com/gorilla/context"
   packages = ["."]
@@ -165,6 +173,7 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/abg/go-patch/patch",
     "github.com/onsi/ginkgo",
     "github.com/onsi/ginkgo/extensions/table",
     "github.com/onsi/gomega",
